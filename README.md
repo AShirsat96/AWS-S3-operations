@@ -213,6 +213,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 MIT License - see [LICENSE](LICENSE) file.
 
 ## 📞 Contact
-- LinkedIn: [[Your LinkedIn]](https://www.linkedin.com/in/aniketshirsatsg/)
-- Email: [[Your Email]](ashirsat96@gmail.com)
+- LinkedIn: https://www.linkedin.com/in/aniketshirsatsg/
+- Email: ashirsat96@gmail.com
 - GitHub: [@AShirsat96](https://github.com/AShirsat96)
