@@ -1,218 +1,96 @@
-# AWS S3 Python Integration Suite 🪣
+# AWS S3 Operations
 
-[![AWS](https://img.shields.io/badge/AWS-S3-orange?style=for-the-badge&logo=amazon-aws)](https://aws.amazon.com/s3/)
-[![Python](https://img.shields.io/badge/Python-3.7%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Boto3](https://img.shields.io/badge/Boto3-Latest-green?style=for-the-badge)](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+A Python implementation for basic AWS S3 operations using boto3. This implementation provides functions for listing, creating, uploading, downloading, and deleting S3 bucket contents.
 
-## 🎯 Overview
-A comprehensive Python toolkit for AWS S3 operations, providing robust file management, bucket operations, and advanced S3 feature implementations. Perfect for applications requiring cloud storage integration.
+## Prerequisites
 
-### 🌟 Key Features
-- **Complete S3 Operations**: Upload, download, delete, list
-- **Advanced Features**: Multipart uploads, versioning, lifecycle policies
-- **Security Implementation**: Encryption, access control, secure transfers
-- **Performance Optimization**: Concurrent operations, chunked transfers
-- **Error Handling**: Comprehensive error management and retry logic
+- Python 3.8.19
+- boto3 (AWS SDK for Python)
+- AWS Account with S3 access
+- AWS Access Key and Secret Access Key
 
-## 🏗️ System Architecture
-```mermaid
-graph TD
-    A[Local System] --> B[S3 Manager]
-    B --> C[AWS S3]
-    B --> D[File Operations]
-    B --> E[Bucket Management]
-    B --> F[Security Controls]
-    C --> G[Cloud Storage]
-```
+## Installation
 
-## 💻 Installation
+Install the required AWS SDK for Python:
 
-### Prerequisites
-- AWS Account
-- Python 3.7+
-- AWS CLI
-- Appropriate IAM permissions
-
-### Setup
 ```bash
-# Clone repository
-git clone https://github.com/AShirsat96/aws_s3_python.git
-cd aws_s3_python
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure AWS
-aws configure
+pip install boto3
 ```
 
-## 📊 Implementation
+## Configuration
 
-### Core Operations
+You'll need to configure the following AWS credentials:
+
 ```python
-from s3_manager import S3Manager
-
-class S3Manager:
-    def __init__(self):
-        self.s3_client = boto3.client('s3')
-        self.s3_resource = boto3.resource('s3')
-    
-    def upload_file(self, file_path: str, bucket: str, key: str):
-        """
-        Upload file to S3 with progress monitoring
-        """
-        try:
-            with open(file_path, 'rb') as file:
-                self.s3_client.upload_fileobj(
-                    file,
-                    bucket,
-                    key,
-                    Callback=ProgressPercentage(file_path)
-                )
-            return True
-        except Exception as e:
-            logger.error(f"Upload failed: {str(e)}")
-            return False
+aws_accesskey = <Your Access Key>
+aws_secretaccess = <Your secret access key>
+myregion = <your region>
+mybucket = <your bucket name>
 ```
 
-### Advanced Features
+## Required Libraries
 ```python
-def multipart_upload(self, file_path: str, bucket: str, key: str):
-    """
-    Multipart upload for large files
-    """
-    config = TransferConfig(
-        multipart_threshold=1024 * 25,
-        max_concurrency=10,
-        multipart_chunksize=1024 * 25,
-        use_threads=True
-    )
-    self.s3_client.upload_file(
-        file_path,
-        bucket,
-        key,
-        Config=config
-    )
+import boto3
+import os
+import logging
 ```
 
-## 📈 Performance Features
+## Features
 
-1. **Concurrent Operations**
+### 1. List Buckets
+Lists all S3 buckets in your AWS account.
+
 ```python
-from concurrent.futures import ThreadPoolExecutor
-
-def batch_upload(self, files: List[str], bucket: str):
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = [
-            executor.submit(self.upload_file, file, bucket)
-            for file in files
-        ]
-        return [f.result() for f in futures]
+List_My_Buckets(aws_access, aws_secret, aws_region)
 ```
 
-2. **Progress Monitoring**
+### 2. Create Bucket
+Creates a new S3 bucket with location constraint.
+
 ```python
-class ProgressPercentage:
-    def __call__(self, bytes_amount):
-        self.progress += bytes_amount
-        percentage = (self.progress * 100) / self.size
-        sys.stdout.write(
-            f"\r{self.filename}: {percentage:.2f}%"
-        )
-        sys.stdout.flush()
+create_bucket(aws_access, aws_secret, aws_region, bucket_name)
 ```
 
-## 🛡️ Security Implementation
+### 3. Upload File
+Uploads a file to specified S3 bucket.
 
-### Encryption
 ```python
-def upload_encrypted(self, file_path: str, bucket: str, key: str):
-    """
-    Upload with server-side encryption
-    """
-    self.s3_client.upload_file(
-        file_path,
-        bucket,
-        key,
-        ExtraArgs={
-            'ServerSideEncryption': 'AES256'
-        }
-    )
+upload_file(aws_access, aws_secret, aws_region, bucket_name, file_toupload, object_name=None)
 ```
+- If `object_name` is not specified, the filename will be used
 
-### Access Control
+### 4. Download File
+Two methods are provided for downloading files:
+
+Method 1 (using download_fileobj):
 ```python
-def set_bucket_policy(self, bucket: str, policy: dict):
-    """
-    Set bucket access policy
-    """
-    policy_string = json.dumps(policy)
-    self.s3_client.put_bucket_policy(
-        Bucket=bucket,
-        Policy=policy_string
-    )
+download_file(aws_access, aws_secret, aws_region, bucket_name, file_todownload, object_name)
 ```
 
-## 📊 Performance Metrics
-
-| Operation | Average Time | Throughput |
-|-----------|--------------|------------|
-| Upload (<10MB) | <2s | 5MB/s |
-| Download (<10MB) | <1s | 8MB/s |
-| List 1000 objects | <3s | N/A |
-| Multipart Upload | ~10MB/s | Variable |
-
-## 💰 Cost Optimization
-
-1. **Storage Classes**
+Method 2 (using download_file):
 ```python
-def optimize_storage(self, bucket: str):
-    """
-    Implement lifecycle rules for cost optimization
-    """
-    lifecycle_config = {
-        'Rules': [
-            {
-                'Status': 'Enabled',
-                'Transitions': [
-                    {
-                        'Days': 30,
-                        'StorageClass': 'STANDARD_IA'
-                    }
-                ]
-            }
-        ]
-    }
-    self.s3_client.put_bucket_lifecycle_configuration(
-        Bucket=bucket,
-        LifecycleConfiguration=lifecycle_config
-    )
+download_file_2(aws_access, aws_secret, aws_region, bucket_name, file_todownload, object_name)
 ```
 
-## 🔄 Future Enhancements
+### 5. List Objects
+Lists all objects in a specified bucket with their sizes in KB.
 
-- [ ] GUI Interface
-- [ ] Enhanced monitoring
-- [ ] Automated backup system
-- [ ] Cross-region replication
-- [ ] Advanced analytics
+```python
+list_object_v2(aws_access, aws_secret, aws_region, bucket_name)
+```
 
-## 📈 Business Impact
+### 6. Delete Object
+Deletes a specific file from a bucket.
 
-- **Cost Savings**: Optimized storage classes
-- **Performance**: Enhanced transfer speeds
-- **Security**: Comprehensive security controls
-- **Scalability**: Handles large-scale operations
+```python
+delete_object(aws_access, aws_secret, aws_region, bucket_name, file_todelete)
+```
 
-## 👥 Contributing
+## Error Handling
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+All functions include error handling using try-except blocks for ClientError exceptions and logging.
 
-## 📝 License
-MIT License - see [LICENSE](LICENSE) file.
+## Official Documentation References
 
-## 📞 Contact
-- LinkedIn: https://www.linkedin.com/in/aniketshirsatsg/
-- Email: ashirsat96@gmail.com
-- GitHub: [@AShirsat96](https://github.com/AShirsat96)
+- [Boto3 Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
+- [Boto3 S3 Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html)
