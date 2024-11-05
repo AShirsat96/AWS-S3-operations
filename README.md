@@ -35,7 +35,7 @@ import os
 import logging
 ```
 
-## Features
+## Functions
 
 ### 1. List Buckets
 Lists all S3 buckets in your AWS account.
